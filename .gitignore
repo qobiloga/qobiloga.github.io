@@ -1,0 +1,9 @@
+# Local web-server metadata
+.osp/
+
+# Large working files the site does not use
+assets/img/portfolio/*.mp4
+
+# Local build helper — regenerates the portfolio cover image.
+# Not part of the site; GitHub Pages serves static files only.
+build-driving-cover.py

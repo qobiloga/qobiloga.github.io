@@ -3,50 +3,105 @@
 
   const root = document.documentElement;
 
-  /* ---------- Theme: light/dark with localStorage + system fallback ---------- */
+  /* ---------- Theme ----------
+     The site always opens in light mode, whatever the operating system
+     prefers. Dark is opt-in: once chosen it is remembered for next time. */
   const THEME_KEY = "qa-theme";
-  const stored = localStorage.getItem(THEME_KEY);
-  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  root.setAttribute("data-theme", stored || (prefersDark ? "dark" : "light"));
+  const saved = localStorage.getItem(THEME_KEY);
+  root.setAttribute("data-theme", saved === "dark" ? "dark" : "light");
 
   const themeBtn = document.getElementById("theme-toggle");
   if (themeBtn) {
     themeBtn.addEventListener("click", () => {
       const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
+      themeBtn.setAttribute("aria-label", next === "dark" ? "Switch to light mode" : "Switch to dark mode");
       localStorage.setItem(THEME_KEY, next);
     });
   }
 
-  /* ---------- Mobile nav ---------- */
-  const nav = document.getElementById("nav");
-  const navToggle = document.getElementById("nav-toggle");
-  if (nav && navToggle) {
-    navToggle.addEventListener("click", () => nav.classList.toggle("open"));
-    nav.addEventListener("click", (e) => {
-      if (e.target.classList.contains("nav-link")) nav.classList.remove("open");
+  /* =========================================================
+     Section nav — the sticky left column highlights whichever
+     panel currently sits under the middle of the viewport.
+     ========================================================= */
+  const panels = Array.from(document.querySelectorAll(".panel"));
+  const links = Array.from(document.querySelectorAll(".side-link"));
+  const progressBar = document.getElementById("scroll-bar");
+
+  const panelIds = panels.map((p) => p.id);
+  let activeId = panelIds[0];
+
+  /* Which panel crosses the vertical middle of the screen? */
+  function panelUnderCenter() {
+    const mid = window.innerHeight / 2;
+    let nearest = panels[0];
+    let nearestDist = Infinity;
+
+    for (const panel of panels) {
+      const box = panel.getBoundingClientRect();
+      if (box.top <= mid && box.bottom >= mid) return panel.id;
+
+      const dist = Math.min(Math.abs(box.top - mid), Math.abs(box.bottom - mid));
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = panel;
+      }
+    }
+    return nearest.id;
+  }
+
+  function setActive(id) {
+    if (id === activeId) return;
+    activeId = id;
+    links.forEach((link) => link.classList.toggle("is-active", link.dataset.target === id));
+  }
+
+  function updateProgress() {
+    if (!progressBar) return;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+    progressBar.style.width = Math.min(100, Math.max(0, ratio * 100)) + "%";
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      setActive(panelUnderCenter());
+      updateProgress();
+      ticking = false;
     });
   }
 
-  /* ---------- Active link on scroll ---------- */
-  const links = Array.from(document.querySelectorAll(".nav-link"));
-  const sections = links
-    .map((l) => document.querySelector(l.getAttribute("href")))
-    .filter(Boolean);
+  if (panels.length) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+  }
 
-  if ("IntersectionObserver" in window && sections.length) {
-    const io = new IntersectionObserver(
+  links.forEach((link) => {
+    link.addEventListener("click", () => {
+      const target = document.getElementById(link.dataset.target);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+
+  /* ---------- Panels fade in the first time they are seen ---------- */
+  if ("IntersectionObserver" in window && panels.length) {
+    const revealer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = "#" + entry.target.id;
-            links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === id));
-          }
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          revealer.unobserve(entry.target);
         });
       },
-      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+      { threshold: 0.08 }
     );
-    sections.forEach((s) => io.observe(s));
+    panels.forEach((panel) => revealer.observe(panel));
+  } else {
+    panels.forEach((panel) => panel.classList.add("is-visible"));
   }
 
   /* ---------- Portfolio filter ---------- */
@@ -108,17 +163,6 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
     });
-  }
-
-  /* ---------- Age ---------- */
-  const ageEl = document.getElementById("my-age");
-  if (ageEl) {
-    const dob = new Date("2001-06-12");
-    const now = new Date();
-    let age = now.getFullYear() - dob.getFullYear();
-    const m = now.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-    ageEl.textContent = age;
   }
 
   /* ---------- Footer year ---------- */
