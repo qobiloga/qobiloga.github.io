@@ -26,6 +26,30 @@
      ========================================================= */
   const panels = Array.from(document.querySelectorAll(".panel"));
   const links = Array.from(document.querySelectorAll(".side-link"));
+  const navToggle = document.getElementById("nav-toggle");
+  const navScrim = document.getElementById("nav-scrim");
+
+  /* ---------- Menu drawer (stacked layout only) ---------- */
+  function setMenu(open) {
+    document.body.classList.toggle("nav-open", open);
+    if (!navToggle) return;
+    navToggle.setAttribute("aria-expanded", String(open));
+    navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  }
+
+  if (navToggle) {
+    navToggle.addEventListener("click", () =>
+      setMenu(!document.body.classList.contains("nav-open")));
+  }
+  if (navScrim) navScrim.addEventListener("click", () => setMenu(false));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setMenu(false);
+  });
+  /* A wide window has no drawer, so never leave the page locked. */
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 980) setMenu(false);
+  });
   const progressBar = document.getElementById("scroll-bar");
 
   const panelIds = panels.map((p) => p.id);
@@ -54,6 +78,7 @@
     if (id === activeId) return;
     activeId = id;
     links.forEach((link) => link.classList.toggle("is-active", link.dataset.target === id));
+
   }
 
   function updateProgress() {
@@ -82,6 +107,7 @@
 
   links.forEach((link) => {
     link.addEventListener("click", () => {
+      setMenu(false);
       const target = document.getElementById(link.dataset.target);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
     });
