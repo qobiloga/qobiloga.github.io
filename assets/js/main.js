@@ -44,7 +44,7 @@
     "skills.lead": "Bu yerdagi har bir texnologiya real loyihalarda sinovdan o‘tgan.",
     "skills.programming": "Dasturlash",
     "skills.framework": "Freymvork",
-    "skills.frontend": "Frontend",
+    "skills.server": "Server",
     "skills.ai": "AI agentlari",
     "tool.cli": "Buyruqlar qatori",
     "tool.aitools": "AI vositalari",
