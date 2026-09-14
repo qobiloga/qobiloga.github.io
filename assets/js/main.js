@@ -38,7 +38,7 @@
     "nav.services": "Xizmatlar",
     "nav.portfolio": "Portfolio",
 
-    "about.lead": "Bir necha yildan beri dasturiy ta’minot ishlab chiqaman, ko‘p qismi davlat tashkilotlari uchun — ularning kundalik ishi tayanadigan tizimlar. Orqada qolishni yoqtirmayman: yangi texnologiya chiqqanda, bir yildan keyin u haqda o‘qigandan ko‘ra, birinchilardan bo‘lib amalda qo‘llashni afzal ko‘raman.",
+    "about.lead": "Bir necha yildan beri dasturlash bilan, asosan backend yo‘nalishida ishlab kelaman. Bir nechta ishlab turgan loyiha qurganman, so‘nggi bir yil ichida esa sun’iy intellekt bilan ishlayapman. Dasturlash men uchun ham qiziqish, ham kundalik ishimning bir qismi.",
 
     "skills.title": "Nimalar bilan ishlayman",
     "skills.lead": "Bu yerdagi har bir texnologiya real loyihalarda sinovdan o‘tgan.",
