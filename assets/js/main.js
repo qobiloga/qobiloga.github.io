@@ -21,6 +21,121 @@
   }
 
   /* =========================================================
+     Language — English by default for every visitor; Uzbek is
+     opt-in and remembered. Only the keys below are swapped, so
+     product names and technology names stay as they are.
+     ========================================================= */
+  const LANG_KEY = "qa-lang";
+
+  const UZ = {
+    "role.line": "Backend dasturchi <i>·</i> AI muhandisi",
+    "tagline": "Bir nechta real platformani ishga tushirganman — 5+ yil dasturlash tajribasi va sun’iy intellekt bilan 1+ yil ish tajribasi.",
+    "cta.cv": "CV yuklab olish",
+    "cta.portfolio": "Ishlarni ko‘rish",
+
+    "nav.about": "Men haqimda",
+    "nav.skills": "Ko‘nikmalar",
+    "nav.services": "Xizmatlar",
+    "nav.portfolio": "Portfolio",
+
+    "about.lead": "Bir necha yildan beri dasturiy ta’minot ishlab chiqaman, ko‘p qismi davlat tashkilotlari uchun — ularning kundalik ishi tayanadigan tizimlar. Orqada qolishni yoqtirmayman: yangi texnologiya chiqqanda, bir yildan keyin u haqda o‘qigandan ko‘ra, birinchilardan bo‘lib amalda qo‘llashni afzal ko‘raman.",
+
+    "skills.title": "Nimalar bilan ishlayman",
+    "skills.lead": "Bu yerdagi har bir texnologiya real loyihalarda sinovdan o‘tgan.",
+    "skills.programming": "Dasturlash",
+    "skills.framework": "Freymvork",
+    "skills.frontend": "Frontend",
+    "skills.ai": "AI agentlari",
+    "tool.cli": "Buyruqlar qatori",
+    "tool.aitools": "AI vositalari",
+    "lang.label": "Tillar",
+    "lang.en": "Ingliz tili — B1",
+    "lang.ru": "Rus tili — A2",
+
+    "services.title": "Qanday yordam bera olaman",
+    "services.lead": "Kichik vazifadan to‘liq loyihagacha — men qamrab oladigan yo‘nalishlar.",
+    "svc.web": "Veb ishlab chiqish",
+    "svc.web.d": "Biznesingizga moslab sayt yaratish, optimallashtirish va texnik qo‘llab-quvvatlash.",
+    "svc.bot": "Telegram botlar",
+    "svc.bot.d": "Avtomatlashtirish, mijozlar bilan ishlash va biznes jarayonlari uchun botlar.",
+    "svc.win": "Windows xizmati",
+    "svc.win.d": "Windows tizimlarini o‘rnatish, sozlash va nosozliklarni bartaraf etish.",
+    "svc.linux": "Linux xizmati",
+    "svc.linux.d": "Linux serverlari va kompyuterlarini sozlash, joylashtirish va texnik qo‘llab-quvvatlash.",
+    "svc.ai": "AI yechimlari",
+    "svc.ai.d": "Vazifalarni avtomatlashtirish va qaror qabul qilishni yaxshilash uchun AI integratsiyasi.",
+    "svc.sci": "Ilmiy matn yozish",
+    "svc.sci.d": "Ilmiy maqola va tadqiqotlarni yozish, tuzilmalash va tahrirlashda yordam.",
+    "svc.docs": "Hujjatlashtirish",
+    "svc.docs.d": "Dasturiy loyihalar uchun tushunarli texnik hujjatlar.",
+    "svc.setup": "Dasturlarni sozlash",
+    "svc.setup.d": "Kompyuter dasturlarini o‘rnatish, sozlash va nosozliklarni bartaraf etish.",
+    "svc.design": "Grafik dizayn",
+    "svc.design.d": "Ijodiy grafik dizayn — logotip, brending va marketing materiallari.",
+    "services.cta": "Loyihangizni muhokama qilamiz",
+
+    "pf.title": "Tanlangan ishlar",
+    "pf.lead": "Batafsil ma’lumot uchun kartani bosing.",
+    "filter.all": "Hammasi",
+    "filter.app": "Ilova",
+    "filter.web": "Veb",
+    "tag.web": "Veb",
+    "tag.app": "Ilova",
+
+    "pf.exami.s": "Ta’lim markazlari va maktablar uchun reyting tizimi",
+    "pf.muzrabot.s": "1-son texnikumning rasmiy sayti — texnikummt.uz",
+    "pf.eduexam.s": "Onlayn imtihon va test tizimi",
+    "pf.terdpi.s": "Institut o‘quv jarayoni platformasi — monitoring.terdpi.uz",
+    "pf.uzfor.s": "O‘zbek tilidagi forum va hamjamiyat",
+    "pf.termiz.s": "Telegram bot + Web App test platformasi",
+    "pf.eduplat.s": "Zamonaviy o‘quv tizimi",
+    "pf.courses.s": "Video kurslar platformasi",
+    "pf.mobile.s": "Ta’lim uchun ilova",
+    "pf.driving.s": "Haydovchilar uchun imtihon mashqi platformasi",
+
+    "modal.visit": "Saytga o‘tish",
+    "modal.close": "Yopish",
+  };
+
+  /* The markup ships in English, so that is the fallback dictionary. */
+  const i18nNodes = Array.from(document.querySelectorAll("[data-i18n]"));
+  const EN = {};
+  i18nNodes.forEach((el) => {
+    const key = el.dataset.i18n;
+    if (!(key in EN)) EN[key] = el.innerHTML;
+  });
+
+  let lang = localStorage.getItem(LANG_KEY) === "uz" ? "uz" : "en";
+
+  function applyLang(next) {
+    lang = next;
+    const dict = next === "uz" ? UZ : EN;
+    i18nNodes.forEach((el) => {
+      const value = dict[el.dataset.i18n];
+      if (value !== undefined) el.innerHTML = value;
+    });
+    root.setAttribute("lang", next);
+
+    /* Keep an open project dialog in step with the switch. */
+    const openCard = document.querySelector(".portfolio-item.is-open");
+    if (openCard) {
+      const desc = document.getElementById("modal-desc");
+      if (desc) desc.textContent = (next === "uz" && openCard.dataset.descUz) || openCard.dataset.desc;
+    }
+    document.querySelectorAll(".lang-btn").forEach((b) => {
+      const on = b.dataset.lang === next;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    localStorage.setItem(LANG_KEY, next);
+  }
+
+  document.querySelectorAll(".lang-btn").forEach((b) => {
+    b.addEventListener("click", () => applyLang(b.dataset.lang));
+  });
+  if (lang === "uz") applyLang("uz");
+
+  /* =========================================================
      Section nav — the sticky left column highlights whichever
      panel currently sits under the middle of the viewport.
      ========================================================= */
@@ -158,19 +273,22 @@
       mImg.src = item.dataset.image;
       mImg.alt = item.dataset.title;
       mTitle.textContent = item.dataset.title;
-      mDesc.textContent = item.dataset.desc;
+      mDesc.textContent = (lang === "uz" && item.dataset.descUz) || item.dataset.desc;
       if (item.dataset.url) {
         mLink.href = item.dataset.url;
         mLink.hidden = false;
       } else {
         mLink.hidden = true;
       }
+      grid.querySelectorAll(".portfolio-item.is-open").forEach((c) => c.classList.remove("is-open"));
+      item.classList.add("is-open");
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("modal-open");
     };
 
     const closeModal = () => {
+      grid.querySelectorAll(".portfolio-item.is-open").forEach((c) => c.classList.remove("is-open"));
       modal.classList.remove("open");
       modal.setAttribute("aria-hidden", "true");
       document.body.classList.remove("modal-open");
