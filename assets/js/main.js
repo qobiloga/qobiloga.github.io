@@ -86,6 +86,7 @@
     "pf.muzrabot.s": "1-son texnikumning rasmiy sayti — texnikummt.uz",
     "pf.eduexam.s": "Onlayn imtihon va test tizimi",
     "pf.terdpi.s": "Institut o‘quv jarayoni platformasi — monitoring.terdpi.uz",
+    "pf.mustaqil.s": "Mustaqil ta’lim tizimi — mustaqil.terdpi.uz",
     "pf.uzfor.s": "O‘zbek tilidagi forum va hamjamiyat",
     "pf.termiz.s": "Telegram bot + Web App test platformasi",
     "pf.eduplat.s": "Zamonaviy o‘quv tizimi",
